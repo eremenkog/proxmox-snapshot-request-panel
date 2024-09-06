@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Landing Page</title>
+    
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'request_panel/selector.css' %}">
+</head>
+<body>
+    <div class="container">
+        <a href="{% url 'request_snapshot' %}" class="block">
+            <h2>Request a Snapshot</h2>
+        </a>
+        <a href="{% url 'manage_requests' %}" class="block">
+            <h2>Manage your Requests</h2>
+        </a>
+        <a href="{% url 'actions_history' %}" class="block">
+            <h2>Actions History</h2>
+        </a>
+    </div>
+</body>
+</html>

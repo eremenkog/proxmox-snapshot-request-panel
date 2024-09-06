@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request Snapshot</title>
+    
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'request_panel/request_snapshot.css' %}">
+    
+    <!-- Include Flatpickr CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- VM Table -->
+        <div class="vm-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>VM Name</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for vm in vms %}
+                        <tr>
+                            <td>{{ vm }}</td>
+                            <td>
+                                <button class="arrow-button" onclick="setVmName('{{ vm }}')">></button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Form Container -->
+        <div class="form-container">
+            <form action="{% url 'submit_request' %}" method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="vm-name">VM Name:</label>
+                    <input type="text" id="vm-name" name="vm_name" required>
+                </div>
+                <div class="form-group">
+                    <label for="snapshot-name">Snapshot Name:</label>
+                    <input type="text" id="snapshot-name" name="snapshot_name" required>
+                </div>
+                <div class="form-group">
+                    <label>Schedule:</label>
+                    <div>
+                        <label>
+                            <input type="radio" name="schedule" value="selected_time" onchange="toggleDateTimeField()" checked>
+                            On selected time
+                        </label>
+                        <label>
+                            <input type="radio" name="schedule" value="on_demand" onchange="toggleDateTimeField()">
+                            On demand
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group" id="date-time-group">
+                    <label for="date-time">Date/Time:</label>
+                    <input type="text" id="date-time" name="date_time">
+                </div>
+                <div class="form-group">
+                    <label for="include-ram">
+                        <input type="checkbox" id="include-ram" name="include_ram">
+                        Include RAM?
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label for="reasoning">Reasoning:</label>
+                    <input type="text" id="reasoning" name="reasoning">
+                </div>
+                <div class="form-buttons">
+                    <button type="submit">Send Request</button>
+                    <button type="reset">Clear</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Include Flatpickr JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script>
+        // Initialize Flatpickr with desired format
+        flatpickr("#date-time", {
+            enableTime: true,
+            dateFormat: "d/m/Y H:i",
+            time_24hr: true
+        });
+
+        function setVmName(vmName) {
+            document.getElementById('vm-name').value = vmName;
+        }
+
+        function toggleDateTimeField() {
+            const dateTimeGroup = document.getElementById('date-time-group');
+            const selectedOption = document.querySelector('input[name="schedule"]:checked').value;
+            dateTimeGroup.style.display = selectedOption === 'selected_time' ? 'block' : 'none';
+        }
+
+        // Initialize visibility based on default radio button selection
+        document.addEventListener('DOMContentLoaded', toggleDateTimeField);
+    </script>
+</body>
+</html>
