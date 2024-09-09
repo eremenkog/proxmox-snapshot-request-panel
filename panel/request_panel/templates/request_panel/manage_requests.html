@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Snapshot Requests</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'request_panel/manage_requests.css' %}">
+</head>
+<body>
+
+    <h1>Manage Snapshot Requests</h1>
+    
+    <div class="cards-container">
+        {% for request in requests %}
+        <div class="card">
+            <h3>VM Name: {{ request.vm_name }}</h3>
+            <p><strong>Snapshot Name:</strong> {{ request.snapshot_name }}</p>
+            <p><strong>Include RAM:</strong> {{ request.include_ram }}</p>
+            <p><strong>Reasoning:</strong> {{ request.reasoning }}</p>
+            <p><strong>Date/Time:</strong> {{ request.date_time }}</p>
+
+            <!-- Action Buttons -->
+            <div class="card-actions">
+                <form method="post" action="{% url 'manage_action' request.id 'approve' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-approve">Approve</button>
+                </form>
+                <form method="post" action="{% url 'manage_action' request.id 'decline' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-decline">Decline</button>
+                </form>
+                <form method="post" action="{% url 'manage_action' request.id 'delete' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-delete">Delete</button>
+                </form>
+            </div>
+        </div>
+        {% empty %}
+        <p>No snapshot requests available.</p>
+        {% endfor %}
+    </div>
+
+</body>
+</html>
