@@ -10,24 +10,37 @@
     
     <!-- Include Flatpickr CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    
+    <!-- Add custom icon stylesheet -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
+
+    <!-- Navigation Bar with Back Button -->
+    <nav class="navbar">
+        <a href="{% url 'selector' %}" class="back-button">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
+    </nav>
+
     <div class="container">
         <!-- VM Table -->
         <div class="vm-table">
             <table>
                 <thead>
                     <tr>
-                        <th>VM Name</th>
-                        <th>Action</th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for vm in vms %}
                         <tr>
-                            <td>{{ vm }}</td>
+                            <td>{{ vm.status }}</td>
+                            <td>{{ vm.name }}</td>
                             <td>
-                                <button class="arrow-button" onclick="setVmName('{{ vm }}')">></button>
+                                <button class="arrow-button" onclick="setVmName('{{ vm.name }}')">></button>
                             </td>
                         </tr>
                     {% endfor %}
@@ -85,7 +98,6 @@
     <!-- Include Flatpickr JS -->
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script>
-        // Initialize Flatpickr with desired format
         flatpickr("#date-time", {
             enableTime: true,
             dateFormat: "d/m/Y H:i",
@@ -102,7 +114,6 @@
             dateTimeGroup.style.display = selectedOption === 'selected_time' ? 'block' : 'none';
         }
 
-        // Initialize visibility based on default radio button selection
         document.addEventListener('DOMContentLoaded', toggleDateTimeField);
     </script>
 </body>

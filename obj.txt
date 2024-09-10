@@ -1,0 +1,8 @@
+id	            string(uuid)
+vm_name	        list[str(vm_name)]
+snapshot_name	string
+include_ram	    bool
+reasoning	    string(reasoning)
+date_time	    date(date)
+status	        [Active, Closed]
+substatus	    [Active - Approved, Active - Pending Approval, Closed - Success, Closed - Deleted, Closed - Denied, Closed - Failure]

@@ -10,15 +10,55 @@ body {
     height: 100vh;
 }
 
+/* Styles for the navigation bar */
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    background-color: #f1f1f1;
+    padding: 10px 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+
+/* Back button style */
+.back-button {
+    display: flex;
+    align-items: center;
+    font-size: 1.2em;
+    color: #333;
+    text-decoration: none;
+    padding: 8px 12px;
+    background-color: #ddd;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+.back-button:hover {
+    background-color: #ccc;
+}
+
+.back-button i {
+    margin-right: 8px;
+}
+
+/* Add padding to the container so it doesn't blend with the navbar */
 .container {
+    margin-top: 70px;
+    padding: 20px;
     display: flex;
     width: 80%;
     max-width: 1200px;
     gap: 20px;
 }
 
+/* VM Table styles */
 .vm-table {
-    width: 15%; /* Adjust based on table content */
+    width: 20%;
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -48,14 +88,18 @@ body {
     background-color: #0056b3;
 }
 
+/* Form Container styles */
 .form-container {
     flex: 1;
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
 }
 
+/* Form group styling */
 .form-group {
     margin-bottom: 15px;
 }
@@ -65,13 +109,28 @@ body {
     margin-bottom: 5px;
 }
 
-.form-group input[type="text"] {
-    width: 100%;
+.form-group input[type="text"],
+.form-group input[type="date"],
+.form-group input[type="datetime-local"] {
+    width: calc(100% - 16px);
     padding: 8px;
+    margin: 0 8px;
     border: 1px solid #ccc;
     border-radius: 4px;
 }
 
+/* Radio button styles */
+.form-group div {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.form-group input[type="radio"] {
+    margin-right: 8px;
+}
+
+/* Form buttons */
 .form-buttons {
     display: flex;
     justify-content: flex-end;
@@ -93,59 +152,4 @@ body {
 
 .form-buttons button:hover {
     background-color: #0056b3;
-}
-
-/* Ensure the form container has proper styling */
-.form-container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-}
-
-/* Style for form groups */
-.form-group {
-    margin-bottom: 15px;
-}
-
-/* Style for text input fields */
-.form-group input[type="text"],
-.form-group input[type="date"],
-.form-group input[type="datetime-local"] {
-    width: calc(100% - 16px); /* Adjust width to account for padding */
-    padding: 8px;
-    margin: 0 8px; /* Adds space on both left and right sides */
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-/* Style for radio buttons to appear in a horizontal row */
-.form-group div {
-    display: flex;
-    gap: 15px; /* Space between radio options */
-    align-items: center; /* Align items vertically centered */
-}
-
-.form-group label {
-    display: flex;
-    align-items: center;
-}
-
-.form-group input[type="radio"] {
-    margin-right: 8px; /* Space between radio button and label text */
-}
-
-/* Style for the Date/Time input field */
-#date-time {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-/* Adjusting form group label and input alignment */
-.form-group label {
-    display: block;
-    margin-bottom: 5px;
 }
