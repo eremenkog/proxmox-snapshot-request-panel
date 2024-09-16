@@ -6,7 +6,7 @@
     <title>Request Snapshot</title>
     
     {% load static %}
-    <link rel="stylesheet" href="{% static 'request_panel/request_snapshot.css' %}">
+    <link rel="stylesheet" href="{% static 'rapp/request.css' %}">
     
     <!-- Include Flatpickr CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -18,7 +18,7 @@
 
     <!-- Navigation Bar with Back Button -->
     <nav class="navbar">
-        <a href="{% url 'selector' %}" class="back-button">
+        <a href="{% url 'main' %}" class="back-button">
             <i class="fas fa-arrow-left"></i> Back
         </a>
     </nav>

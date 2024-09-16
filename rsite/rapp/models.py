@@ -1,4 +1,6 @@
 from django.db import models
+from django.dispatch import receiver
+
 
 class SnapshotRequest(models.Model):
     id = models.CharField(max_length=255, primary_key=True)

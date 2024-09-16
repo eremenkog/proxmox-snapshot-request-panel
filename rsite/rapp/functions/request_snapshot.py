@@ -1,8 +1,7 @@
-import os, json, uuid
-from datetime import datetime
+import uuid
 from django.shortcuts import redirect
 from django.conf import settings
-from .models import SnapshotRequest
+from rapp.models import SnapshotRequest
 
 def submit_request(request):
     if request.method == 'POST':
@@ -16,8 +15,8 @@ def submit_request(request):
         # Handle the form data here (e.g., save to database, send email)
         save_snapshot_request(snapshot_id, vm_name, snapshot_name, include_ram, reasoning, date_time)
 
-        return redirect('request_snapshot')
-    return redirect('request_snapshot')
+        return redirect('request')
+    return redirect('request')
 
 def save_snapshot_request(snapshot_id, vm_name, snapshot_name, include_ram, reasoning, date_time):
     SnapshotRequest.objects.create(

@@ -3,7 +3,7 @@ import json
 from django.conf import settings
 from django.shortcuts import redirect, render
 from django.http import HttpResponse
-from .models import SnapshotRequest  # Make sure this import matches your model import
+from rapp.models import SnapshotRequest  # Make sure this import matches your model import
 
 def get_snapshot_requests(status_filter=None):
     if status_filter:
@@ -31,12 +31,12 @@ def manage_request_action(request, request_id, action):
         return HttpResponse("Invalid action", status=400)
 
     snapshot_request.save()
-    return redirect('manage_requests')
+    return redirect('manage')
 
 def manage_requests_view(request):
     status_filter = request.GET.get('status', None)
     snapshot_requests = get_snapshot_requests(status_filter)
     
-    return render(request, 'request_panel/manage_requests.html', {
+    return render(request, 'rapp/manage.html', {
         'snapshot_requests': snapshot_requests
     })

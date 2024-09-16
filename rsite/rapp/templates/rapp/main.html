@@ -6,17 +6,17 @@
     <title>Landing Page</title>
     
     {% load static %}
-    <link rel="stylesheet" href="{% static 'request_panel/selector.css' %}">
+    <link rel="stylesheet" href="{% static 'rapp/main.css' %}">
 </head>
 <body>
     <div class="container">
-        <a href="{% url 'request_snapshot' %}" class="block">
+        <a href="{% url 'request' %}" class="block">
             <h2>Request a Snapshot</h2>
         </a>
-        <a href="{% url 'manage_requests' %}" class="block">
+        <a href="{% url 'manage' %}" class="block">
             <h2>Manage your Requests</h2>
         </a>
-        <a href="{% url 'actions_history' %}" class="block">
+        <a href="{% url 'actions' %}" class="block">
             <h2>Actions History</h2>
         </a>
     </div>

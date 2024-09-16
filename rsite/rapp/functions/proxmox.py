@@ -1,5 +1,5 @@
 import requests
-from .secrets import PROXMOX_URL, PROXMOX_USER, PROXMOX_PASSWORD, PROXMOX_NODE_NAME
+from rsite.secrets import PROXMOX_URL, PROXMOX_USER, PROXMOX_PASSWORD, PROXMOX_NODE_NAME
 
 def get_proxmox_auth_token():
     url = f"{PROXMOX_URL}/access/ticket"

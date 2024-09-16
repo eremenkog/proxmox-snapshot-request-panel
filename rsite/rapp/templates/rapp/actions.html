@@ -6,7 +6,7 @@
     <title>Actions History</title>
     
     {% load static %}
-    <link rel="stylesheet" href="{% static 'request_panel/actions_history.css' %}">
+    <link rel="stylesheet" href="{% static 'rapp/actions.css' %}">
     
     <!-- Add custom icon stylesheet -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -15,7 +15,7 @@
     
     <!-- Navigation Bar with Back Button -->
     <nav class="navbar">
-        <a href="{% url 'selector' %}" class="back-button">
+        <a href="{% url 'main' %}" class="back-button">
             <i class="fas fa-arrow-left"></i> Back
         </a>
     </nav>
