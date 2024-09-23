@@ -1,55 +1,48 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Snapshot Requests</title>
-    
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'rapp/manage.css' %}">
-    
-    <!-- Add custom icon stylesheet -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-</head>
-<body>
-        
-    <!-- Navigation Bar with Back Button -->
-    <nav class="navbar">
-        <a href="{% url 'main' %}" class="back-button">
-            <i class="fas fa-arrow-left"></i> Back
-        </a>
-    </nav>
+{% extends 'rapp/base.html' %}
 
-    <div class="cards-container">
-        {% for request in requests %}
-        <div class="card">
-            <h3>VM Name: {{ request.vm_name }}</h3>
-            <p><strong>Snapshot Name:</strong> {{ request.snapshot_name }}</p>
-            <p><strong>Include RAM:</strong> {{ request.include_ram }}</p>
-            <p><strong>Reasoning:</strong> {{ request.reasoning }}</p>
-            <p><strong>Date/Time:</strong> {{ request.date_time }}</p>
-            <p><strong>Status:</strong> {{ request.status }}</p>
-            <p><strong>Substatus:</strong> {{ request.substatus }}</p>
-            <!-- Action Buttons -->
-            <div class="card-actions">
-                <form method="post" action="{% url 'manage_action' request.id 'approve' %}">
-                    {% csrf_token %}
-                    <button type="submit" class="btn-approve">Approve</button>
-                </form>
-                <form method="post" action="{% url 'manage_action' request.id 'decline' %}">
-                    {% csrf_token %}
-                    <button type="submit" class="btn-decline">Decline</button>
-                </form>
-                <form method="post" action="{% url 'manage_action' request.id 'delete' %}">
-                    {% csrf_token %}
-                    <button type="submit" class="btn-delete">Delete</button>
-                </form>
-            </div>
+{% block title %}Manage Snapshot Requests{% endblock %}
+
+{% block extra_css %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'rapp/manage.css' %}">
+{% endblock %}
+
+{% block back_button %}
+    <a href="{% url 'main' %}" class="back-button">
+        <i class="fas fa-arrow-left"></i> Back
+    </a>
+{% endblock %}
+
+{% block content %}
+<div class="cards-container">
+    {% for request in requests %}
+    <div class="card">
+        <h3>VM Name: {{ request.vm_name }}</h3>
+        <p><strong>Snapshot Name:</strong> {{ request.snapshot_name }}</p>
+        <p><strong>Include RAM:</strong> {{ request.include_ram }}</p>
+        <p><strong>Reasoning:</strong> {{ request.reasoning }}</p>
+        <p><strong>Date/Time:</strong> {{ request.date_time }}</p>
+        <p><strong>Status:</strong> {{ request.status }}</p>
+        <p><strong>Substatus:</strong> {{ request.substatus }}</p>
+        <p><strong>Author:</strong> {{ request.author }}</p>
+        <!-- Action Buttons -->
+        <div class="card-actions">
+            <form method="post" action="{% url 'manage_action' request.id 'approve' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn-approve">Approve</button>
+            </form>
+            <form method="post" action="{% url 'manage_action' request.id 'decline' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn-decline">Decline</button>
+            </form>
+            <form method="post" action="{% url 'manage_action' request.id 'delete' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn-delete">Delete</button>
+            </form>
         </div>
-        {% empty %}
-        <p>No snapshot requests available.</p>
-        {% endfor %}
     </div>
-
-</body>
-</html>
+    {% empty %}
+    <p>No snapshot requests available.</p>
+    {% endfor %}
+</div>
+{% endblock %}

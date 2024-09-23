@@ -12,13 +12,15 @@ def submit_request(request):
         reasoning = request.POST.get('reasoning')
         date_time = request.POST.get('date_time')
         
+        current_user = request.user
+        
         # Handle the form data here (e.g., save to database, send email)
-        save_snapshot_request(snapshot_id, vm_name, snapshot_name, include_ram, reasoning, date_time)
+        save_snapshot_request(snapshot_id, vm_name, snapshot_name, include_ram, reasoning, date_time, current_user)
 
         return redirect('request')
     return redirect('request')
 
-def save_snapshot_request(snapshot_id, vm_name, snapshot_name, include_ram, reasoning, date_time):
+def save_snapshot_request(snapshot_id, vm_name, snapshot_name, include_ram, reasoning, date_time, author):
     SnapshotRequest.objects.create(
         id=snapshot_id,
         vm_name=vm_name,
@@ -27,6 +29,7 @@ def save_snapshot_request(snapshot_id, vm_name, snapshot_name, include_ram, reas
         reasoning=reasoning,
         date_time=date_time,
         status="Active",
-        substatus="Pending Approval"
+        substatus="Pending Approval",
+        author=author,
     )
 

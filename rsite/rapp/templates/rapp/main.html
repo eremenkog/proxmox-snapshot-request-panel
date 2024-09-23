@@ -1,24 +1,29 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Landing Page</title>
-    
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'rapp/main.css' %}">
-</head>
-<body>
-    <div class="container">
-        <a href="{% url 'request' %}" class="block">
-            <h2>Request a Snapshot</h2>
-        </a>
-        <a href="{% url 'manage' %}" class="block">
-            <h2>Manage your Requests</h2>
-        </a>
-        <a href="{% url 'actions' %}" class="block">
-            <h2>Actions History</h2>
-        </a>
-    </div>
-</body>
-</html>
+{% extends 'rapp/base.html' %}
+
+{% block title %}Main Page - Proxmox Snapshot Request Panel{% endblock %}
+
+{% block extra_css %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'rapp/main.css' %}">
+{% endblock %}
+
+{% block back_button %}
+<!-- Main page typically doesn't have a back button, but you can add one if needed -->
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <a href="{% url 'request' %}" class="block">
+        <h2>Request a Snapshot</h2>
+        <p>Create a new snapshot request for your VM</p>
+    </a>
+    <a href="{% url 'manage' %}" class="block">
+        <h2>Manage your Requests</h2>
+        <p>View and manage your existing snapshot requests</p>
+    </a>
+    <a href="{% url 'actions' %}" class="block">
+        <h2>Actions History</h2>
+        <p>View the history of actions taken on your requests</p>
+    </a>
+</div>
+{% endblock %}

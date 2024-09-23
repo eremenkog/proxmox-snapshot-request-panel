@@ -1,5 +1,6 @@
 from django.db import models
 from django.dispatch import receiver
+from django.contrib.auth.models import User
 
 
 class SnapshotRequest(models.Model):
@@ -11,6 +12,7 @@ class SnapshotRequest(models.Model):
     date_time = models.CharField(max_length=255)
     status = models.CharField(max_length=50, default='Active')
     substatus = models.CharField(max_length=50, default='Pending Approval')
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
 
     class Meta:
         db_table = 'snapshots'
