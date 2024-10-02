@@ -15,7 +15,17 @@ class SnapshotRequest(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE)
 
     class Meta:
-        db_table = 'snapshots'
+        db_table = 'rapp_snapshotrequest'
 
     def __str__(self):
         return self.vm_name
+    
+class ApproveList(models.Model):
+    scheme_name = models.CharField(max_length=255)
+    id = models.CharField(max_length=255, primary_key=True)
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    approvers = models.TextField()
+
+    class Meta:
+        db_table = 'rapp_approvelist'
+

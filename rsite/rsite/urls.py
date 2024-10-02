@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from rapp import views
 from rapp.functions.manage_requests import manage_request_action
+from rapp.functions.manage_schemes import manage_scheme_action
 from rapp.views import logout_view # ???
 
 
@@ -30,4 +31,8 @@ urlpatterns = [
     path('manage/<uuid:request_id>/<str:action>/', manage_request_action, name='manage_action'),
     path('actions/', views.actions_history, name='actions'),
     path('logout/', logout_view, name='logout'),
+    path('schemes/', views.schemes, name='schemes'),
+    #path('schemes/<uuid:request_id>/<str:action>/', manage_scheme_action, name='schemes_action'),
+    path('schemes/<uuid:scheme_id>/delete/', views.delete_scheme, name='delete_scheme'),
+    path('schemes/create/', views.create_scheme, name='create_scheme'),
 ]
