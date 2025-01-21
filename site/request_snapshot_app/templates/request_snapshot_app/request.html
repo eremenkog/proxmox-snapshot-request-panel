@@ -1,10 +1,11 @@
-{% extends 'rapp/base.html' %}
+{% extends 'request_snapshot_app/base.html' %}
 
 {% block title %}Request Snapshot{% endblock %}
 
 {% block extra_css %}
 {% load static %}
-<link rel="stylesheet" href="{% static 'rapp/request.css' %}">
+<link rel="stylesheet" href="{% static 'request_snapshot_app/request.css' %}">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/css/select2.min.css" rel="stylesheet" />
 {% endblock %}
 
 
@@ -17,14 +18,21 @@
                 <tr>
                     <th></th>
                     <th></th>
-                    <th></th>
                 </tr>
             </thead>
             <tbody>
                 {% for vm in vms %}
                     <tr>
-                        <td>{{ vm.status }}</td>
-                        <td>{{ vm.name }}</td>
+                        <td>
+                            {% if vm.status == 'running' %}
+                                <i class="fas fa-desktop" style="color: green;" title="Running"></i>
+                            {% elif vm.status == 'stopped' %}
+                                <i class="fas fa-desktop" style="color: red;" title="Stopped"></i>
+                            {% else %}
+                                <i class="fas fa-question-circle" style="color: gray;" title="Unknown"></i>
+                            {% endif %}
+                                {{ vm.name }}
+                            </td>
                         <td>
                             <button class="arrow-button" onclick="setVmName('{{ vm.name }}')">></button>
                         </td>
@@ -66,8 +74,24 @@
             <div class="form-group">
                 <label for="include-ram">
                     <input type="checkbox" id="include-ram" name="include_ram">
-                    Include RAM?
+                    Include RAM
                 </label>
+            </div>
+            <div class="form-group">
+                <label for="manual">
+                    <input type="checkbox" id="manual" name="manual">
+                    Manual creation
+                </label>
+            </div>
+            <!-- Group Selection -->
+            <div class="form-group">
+                <label for="group">Approvers group:</label>
+                <select id="group" name="group" style="width: 300px;">
+                    <option value="" disabled selected>Select a group</option>
+                    {% for group in groups %}
+                        <option value="{{ group.id }}">{{ group.name }}</option>
+                    {% endfor %}
+                </select>
             </div>
             <div class="form-group">
                 <label for="reasoning">Reasoning:</label>
@@ -81,8 +105,11 @@
     </div>
 </div>
 
-<!-- Include Flatpickr JS -->
+<!-- Include JS Libraries -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/js/select2.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
 <script>
     flatpickr("#date-time", {
         enableTime: true,
@@ -100,7 +127,14 @@
         dateTimeGroup.style.display = selectedOption === 'selected_time' ? 'block' : 'none';
     }
 
-    document.addEventListener('DOMContentLoaded', toggleDateTimeField);
+    document.addEventListener('DOMContentLoaded', () => {
+        toggleDateTimeField();
+        // Initialize Select2 on the drop-down
+        $('#group').select2({
+            placeholder: "Select approvers group",
+            allowClear: true
+        });
+    });
 </script>
 
 {% endblock %}

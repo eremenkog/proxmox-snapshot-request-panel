@@ -1,5 +1,5 @@
 """
-URL configuration for rsite project.
+URL configuration for request_snapshot project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/5.1/topics/http/urls/
@@ -15,24 +15,20 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
-from rapp import views
-from rapp.functions.manage_requests import manage_request_action
-from rapp.functions.manage_schemes import manage_scheme_action
-from rapp.views import logout_view # ???
-
+from django.urls import path
+from request_snapshot_app import views
+from request_snapshot_app.views import logout_view, create_snapshot
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.main, name='main'),
+    path('logout/', logout_view, name='logout'),
     path('request/', views.request_snapshot, name='request'),
     path('submit-request/', views.submit_request, name='submit_request'),
     path('manage/', views.manage_requests, name='manage'),
-    path('manage/<uuid:request_id>/<str:action>/', manage_request_action, name='manage_action'),
-    path('actions/', views.actions_history, name='actions'),
-    path('logout/', logout_view, name='logout'),
-    path('schemes/', views.schemes, name='schemes'),
-    #path('schemes/<uuid:request_id>/<str:action>/', manage_scheme_action, name='schemes_action'),
-    path('schemes/<uuid:scheme_id>/delete/', views.delete_scheme, name='delete_scheme'),
-    path('schemes/create/', views.create_scheme, name='create_scheme'),
+    path('approve-request/<int:request_id>/', views.approve_request, name='approve_request'),
+    path('reject-request/<int:request_id>/', views.reject_request, name='reject_request'),
+    path('delete-request/<int:request_id>/', views.delete_request, name='delete_request'),
+    path('actions/', views.actions, name='actions'),
+    path('create-snapshot/', create_snapshot, name='create_snapshot'),
 ]

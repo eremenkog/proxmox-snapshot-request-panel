@@ -1,0 +1,215 @@
+{% extends 'request_snapshot_app/base.html' %}
+
+{% block title %}Manage Snapshot Requests{% endblock %}
+
+{% block extra_css %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'request_snapshot_app/manage.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="content">
+    <div class="filters">
+        <form method="get">
+            <div class="filter-group">
+                <label for="search">Search:</label>
+                <input type="text" id="search" name="search" class="search-input" 
+                       value="{{ search_query }}" placeholder="Search VM name, snapshot name, or requester">
+            </div>
+            
+            <div class="filter-group">
+                <label for="status">Status:</label>
+                <select id="status" name="status">
+                    <option value="all" {% if status_filter == 'all' %}selected{% endif %}>All</option>
+                    {% for status_code, status_label in status_choices %}
+                    <option value="{{ status_code }}" {% if status_filter == status_code %}selected{% endif %}>
+                        {{ status_label }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label for="date_filter">Time Period:</label>
+                <select id="date_filter" name="date_filter">
+                    <option value="all" {% if date_filter == 'all' %}selected{% endif %}>All Time</option>
+                    <option value="today" {% if date_filter == 'today' %}selected{% endif %}>Today</option>
+                    <option value="week" {% if date_filter == 'week' %}selected{% endif %}>Past Week</option>
+                    <option value="month" {% if date_filter == 'month' %}selected{% endif %}>Past Month</option>
+                </select>
+            </div>
+            
+            <button type="submit" class="apply-filters">Apply Filters</button>
+        </form>
+    </div>
+    
+    <table class="requests-table">
+        <thead>
+            <tr>
+                <th>VM Name</th>
+                <th>Snapshot Name</th>
+                <th>Requester</th>
+                <th>Schedule</th>
+                <th>Manual Mode</th>
+                <th>Status</th>
+                <th>Approvers</th>
+                <th>Created At</th>
+                <th>Description</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for request in requests %}
+            <tr>
+                <td>{{ request.vm_name }}</td>
+                <td>{{ request.snapshot_name }}</td>
+                <td>{{ request.requester.username }}</td>
+                <td>
+                    {% if request.schedule_type == 'selected_time' %}
+                        {{ request.scheduled_time|date:"d/m/Y H:i" }}
+                    {% else %}
+                        On Demand
+                    {% endif %}
+                </td>
+                <td>{% if request.manual_mode %}Yes{% else %}No{% endif %}</td>
+                <td>
+                    <span class="status-badge status-{{ request.status }}">
+						{{ request.status }}
+                    </span>
+                </td>
+                <td>
+                    <ul class="approvers-list">
+                        {% for approver in request.approvers %}
+                        <li class="approver-item">
+                            <span class="approver-status status-{{ approver.decision }}"></span>
+                            {{ approver.username }}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </td>
+                <td>{{ request.created_at|date:"d/m/Y H:i" }}</td>
+                <td>{{ request.reasoning }}</td> 
+                <td>
+                    {% if request.status == 'pending' %}
+                        {% if user.groups.all|length > 0 %}
+                            <button onclick="approveRequest({{ request.id }})" class="action-btn approve">Approve</button>
+                            <button onclick="rejectRequest({{ request.id }})" class="action-btn reject">Reject</button>
+                        {% endif %}
+                        {% if user == request.requester %}
+                            <button onclick="deleteRequest({{ request.id }})" class="action-btn delete">Delete</button>
+                        {% endif %}
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="9" style="text-align: center;">No requests found</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+        <!-- Add notification div -->
+        <div id="notification" class="notification" style="display: none;"></div>
+</div>
+
+
+<!-- Add required JavaScript -->
+<script>
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    function showNotification(message, isError = false) {
+        const notification = document.getElementById('notification');
+        notification.textContent = message;
+        notification.className = `notification ${isError ? 'error' : 'success'}`;
+        notification.style.display = 'block';
+        
+        setTimeout(() => {
+            notification.style.display = 'none';
+        }, 5000);
+    }
+
+    function handleResponse(response) {
+        if (!response.ok) {
+            return response.json().then(data => {
+                throw new Error(data.error || 'An error occurred');
+            });
+        }
+        return response.json();
+    }
+
+    function approveRequest(requestId) {
+        fetch(`/approve-request/${requestId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(handleResponse)
+        .then(data => {
+            showNotification(data.message);
+            location.reload();
+        })
+        .catch(error => {
+            showNotification(error.message, true);
+        });
+    }
+
+    function rejectRequest(requestId) {
+        const reason = prompt('Please enter a reason for rejection:');
+        if (reason === null) return; // User cancelled
+
+        fetch(`/reject-request/${requestId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ reason: reason })
+        })
+        .then(handleResponse)
+        .then(data => {
+            showNotification(data.message);
+            location.reload();
+        })
+        .catch(error => {
+            showNotification(error.message, true);
+        });
+    }
+
+    function deleteRequest(requestId) {
+        if (!confirm('Are you sure you want to delete this request?')) return;
+
+        fetch(`/delete-request/${requestId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(handleResponse)
+        .then(data => {
+            showNotification(data.message);
+            location.reload();
+        })
+        .catch(error => {
+            showNotification(error.message, true);
+        });
+    }
+</script>
+
+{% endblock %}

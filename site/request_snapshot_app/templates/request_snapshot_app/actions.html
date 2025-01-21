@@ -1,0 +1,136 @@
+{% extends 'request_snapshot_app/base.html' %}
+
+{% block title %}Actions - Proxmox Snapshot Requests{% endblock %}
+
+{% block extra_css %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'request_snapshot_app/manage.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="content">
+    <h1>Approved Snapshot Requests</h1>
+
+    <table class="requests-table">
+        <thead>
+            <tr>
+                <th>VM Name</th>
+                <th>Snapshot Name</th>
+                <th>Requester</th>
+                <th>Schedule</th>
+                <th>Manual Mode</th>
+                <th>Created At</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for request in approved_requests %}
+            <tr>
+                <td>
+                    {% for vm in vms %}
+                        {% if vm.name == request.vm_name %}
+                            {% if vm.status == 'running' %}
+                                <i class="fas fa-desktop" style="color: green;" title="Running"></i>
+                            {% elif vm.status == 'stopped' %}
+                                <i class="fas fa-desktop" style="color: red;" title="Stopped"></i>
+                            {% else %}
+                                <i class="fas fa-question-circle" style="color: gray;" title="Unknown"></i>
+                            {% endif %}
+                            {{ vm.name }}
+                        {% endif %}
+                    {% endfor %}
+                </td>
+                <td>{{ request.snapshot_name }}</td>
+                <td>{{ request.requester.username }}</td>
+                <td>
+                    {% if request.schedule_type == 'selected_time' %}
+                        {{ request.scheduled_time|date:"d.m.Y H:i" }}
+                    {% else %}
+                        On Demand
+                    {% endif %}
+                </td>
+                <td>{% if request.manual_mode %}Yes{% else %}No{% endif %}</td>
+                <td>{{ request.created_at|date:"d.m.Y H:i" }}</td>
+                <td>
+                    {% if request.manual_mode %}
+                        <button onclick="createSnapshot('{{ request.vm_name }}', '{{ request.snapshot_name }}', '{{ request.reasoning }}')" class="action-btn approve">
+                            Create Snapshot
+                        </button>
+                    {% else %}
+                        <span>No action required</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% for vm in vms %}
+                {% if vm.name == request.vm_name and vm.snapshots %}
+                    <tr>
+                        <td colspan="7">
+                            <ul>
+                                {% for snapshot in vm.snapshots %}
+                                    {% if snapshot.name == "current" %}
+                                        <li>No current snapshots</li>
+                                    {% else %}
+                                        <li>
+                                            <strong>Name:</strong> {{ snapshot.name }},
+                                            <strong>Description:</strong> {{ snapshot.description }},
+                                            <strong>Time:</strong> {{ snapshot.snaptime|date:"d.m.Y H:i" }}
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                            </ul>
+                        </td>
+                    </tr>
+                {% endif %}
+            {% endfor %}
+            {% empty %}
+            <tr>
+                <td colspan="7" style="text-align: center;">No approved requests found</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Notification div for feedback -->
+    <div id="notification" class="notification" style="display: none;"></div>
+</div>
+
+<!-- JavaScript to handle the "Create Snapshot" button -->
+<script>
+    function createSnapshot(vmName, snapshotName, description) {
+        fetch(`/create-snapshot/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                vm_name: vmName,
+                snapshot_name: snapshotName,
+                description: description,
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification(data.message, false);
+            } else {
+                showNotification(data.message, true);
+            }
+        })
+        .catch(error => {
+            showNotification('Failed to create snapshot: ' + error.message, true);
+        });
+    }
+
+    function showNotification(message, isError) {
+        const notification = document.getElementById('notification');
+        notification.textContent = message;
+        notification.className = `notification ${isError ? 'error' : 'success'}`;
+        notification.style.display = 'block';
+
+        setTimeout(() => {
+            notification.style.display = 'none';
+        }, 5000);
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,158 @@
+.filters {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.filters form {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.requests-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background-color: white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.requests-table th,
+.requests-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.requests-table th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+}
+
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.875rem;
+}
+
+.status-pending { background-color: #ffd700; }
+.status-approved { background-color: #90EE90; }
+.status-rejected { background-color: #ffcccb; }
+.status-completed { background-color: #98FB98; }
+.status-failed { background-color: #ff6961; }
+
+.search-input {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    min-width: 200px;
+}
+
+select {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.apply-filters {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.apply-filters:hover {
+    background-color: #0056b3;
+}
+
+.content {
+    padding: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.action-btn {
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: none;
+    color: white;
+    cursor: pointer;
+    margin: 0 2px;
+}
+
+.approve {
+    background-color: #28a745;
+}
+
+.reject {
+    background-color: #dc3545;
+}
+
+.delete {
+    background-color: #6c757d;
+}
+
+.approvers-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.approver-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+.approver-status {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.status-none { background-color: #ffd700; }
+.status-approved { background-color: #90EE90; }
+.status-rejected { background-color: #ffcccb; }
+
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 25px;
+    border-radius: 4px;
+    color: white;
+    z-index: 1000;
+    animation: slideIn 0.5s ease-out;
+}
+
+.notification.success {
+    background-color: #28a745;
+}
+
+.notification.error {
+    background-color: #dc3545;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}

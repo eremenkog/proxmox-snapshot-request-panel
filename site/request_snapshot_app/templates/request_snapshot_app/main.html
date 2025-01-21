@@ -1,10 +1,10 @@
-{% extends 'rapp/base.html' %}
+{% extends 'request_snapshot_app/base.html' %}
 
 {% block title %}Main Page - Proxmox Snapshot Request Panel{% endblock %}
 
 {% block extra_css %}
 {% load static %}
-<link rel="stylesheet" href="{% static 'rapp/main.css' %}">
+<link rel="stylesheet" href="{% static 'request_snapshot_app/main.css' %}">
 {% endblock %}
 
 {% block back_button %}
@@ -18,16 +18,13 @@
         <p>Create a new snapshot request for your VM</p>
     </a>
     <a href="{% url 'manage' %}" class="block">
-        <h2>Manage your Requests</h2>
-        <p>View and manage your existing snapshot requests</p>
+        <h2>Manage Requests</h2>
+        <p>View and manage snapshot requests</p>
     </a>
     <a href="{% url 'actions' %}" class="block">
-        <h2>Actions History</h2>
-        <p>View the history of actions taken on your requests</p>
-    </a>
-    <a href="{% url 'schemes' %}" class="block">
-        <h2>Manage approve schemes</h2>
-        <p>Create and edit approvement schemes</p>
+        <h2>Actions</h2>
+        <p>View pending actions and history <br />
+           Perform manual snapshots</p>
     </a>
 </div>
 {% endblock %}
