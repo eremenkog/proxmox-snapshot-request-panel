@@ -78,3 +78,68 @@ def create_snapshot(vm_name, snapshot_name, description=""):
     except requests.exceptions.RequestException as e:
         print(f"Failed to create snapshot: {e}")
         raise
+
+def delete_snapshot(vm_name, snapshot_name):
+    vms = get_all_vms()
+    vm = next((vm for vm in vms if vm['name'] == vm_name), None)
+
+    if not vm:
+        raise ValueError(f"VM with name '{vm_name}' not found.")
+
+    vm_id = vm['vmid']
+
+    tokens = get_proxmox_auth_token()
+    ticket = tokens['ticket']
+    csrf_token = tokens['csrf_token']
+
+    headers = {
+        'CSRFPreventionToken': csrf_token,
+        'Cookie': f"PVEAuthCookie={ticket}"
+    }
+
+    url = f"{PROXMOX_URL}/nodes/{PROXMOX_NODE_NAME}/qemu/{vm_id}/snapshot/{snapshot_name}"
+
+    try:
+        response = requests.delete(url, headers=headers, verify=False)
+        response.raise_for_status()
+
+        print(f"Snapshot '{snapshot_name}' deleted successfully for VM '{vm_name}' (ID: {vm_id}) on node {PROXMOX_NODE_NAME}.")
+    except requests.exceptions.RequestException as e:
+        print(f"Failed to delete snapshot: {e}")
+        raise
+
+def rollback_snapshot(vm_name, snapshot_name):
+    vms = get_all_vms()
+    vm = next((vm for vm in vms if vm['name'] == vm_name), None)
+
+    if not vm:
+        raise ValueError(f"VM with name '{vm_name}' not found.")
+
+    vm_id = vm['vmid']
+
+    tokens = get_proxmox_auth_token()
+    ticket = tokens['ticket']
+    csrf_token = tokens['csrf_token']
+
+    headers = {
+        'CSRFPreventionToken': csrf_token,
+        'Cookie': f"PVEAuthCookie={ticket}"
+    }
+
+    url = f"{PROXMOX_URL}/nodes/{PROXMOX_NODE_NAME}/qemu/{vm_id}/snapshot/{snapshot_name}/rollback"
+
+    snapshot_data = {
+        "snapname": snapshot_name,
+        "start": "0",
+    }
+
+    try:
+        response = requests.post(url, headers=headers, data=snapshot_data, verify=False)
+        response.raise_for_status()
+
+        print(f"VM '{vm_name}' (ID: {vm_id}) on node {PROXMOX_NODE_NAME} rolled back successfully to snapshot '{snapshot_name}'.")
+    except requests.exceptions.RequestException as e:
+        print(f"Failed to rollback snapshot: {e}")
+        raise
+
+    # POST /api2/json/nodes/{node}/qemu/{vmid}/snapshot/{snapname}/rollback

@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from request_snapshot_app import views
-from request_snapshot_app.views import logout_view, create_snapshot
+from request_snapshot_app.views import logout_view, create_snapshot, delete_snapshot, rollback_snapshot
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -31,4 +31,7 @@ urlpatterns = [
     path('delete-request/<int:request_id>/', views.delete_request, name='delete_request'),
     path('actions/', views.actions, name='actions'),
     path('create-snapshot/', create_snapshot, name='create_snapshot'),
+    path('delete-snapshot/', delete_snapshot, name='delete_snapshot'),
+    path('rollback-snapshot/', rollback_snapshot, name='rollback_snapshot'),
+    path('complete-request/<int:request_id>/', views.complete_request, name='complete_request'),
 ]

@@ -3,6 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
 from request_snapshot_app.functions.proxmox import get_all_vms
 from .functions.proxmox import create_snapshot as create_proxmox_snapshot
+from .functions.proxmox import delete_snapshot as delete_proxmox_snapshot
+from .functions.proxmox import rollback_snapshot as rollback_proxmox_snapshot
 from django.contrib.auth.models import Group
 from .models import SnapshotRequest, ApproverAction
 from django.contrib import messages
@@ -148,6 +150,28 @@ def delete_request(request, request_id):
         }, status=500)
 
 @login_required
+@require_POST
+def complete_request(request, request_id):
+    snapshot_request = get_object_or_404(SnapshotRequest, id=request_id)
+    
+    # Check if user is the requester
+    if request.user != snapshot_request.requester:
+        return JsonResponse({'error': 'Not authorized'}, status=403)
+    
+    try:
+        # Mark the request as completed
+        snapshot_request.complete()
+        
+        return JsonResponse({
+            'status': 'success',
+            'message': 'Request completed successfully'
+        })
+    except Exception as e:
+        return JsonResponse({
+            'error': str(e)
+        }, status=500)
+
+@login_required
 def manage_requests(request):
     # Get filter parameters
     search_query = request.GET.get('search', '')
@@ -269,4 +293,44 @@ def create_snapshot(request):
         return JsonResponse({
             'success': False,
             'message': f"Failed to create snapshot: {str(e)}",
+        }, status=500)
+    
+@require_POST
+def delete_snapshot(request):
+    import json
+    data = json.loads(request.body)
+    vm_name = data.get('vm_name')
+    snapshot_name = data.get('snapshot_name')
+
+    try:
+        # Call the Proxmox function to create the snapshot
+        delete_proxmox_snapshot(vm_name, snapshot_name)
+        return JsonResponse({
+            'success': True,
+            'message': f"Snapshot '{snapshot_name}' deleted successfully for VM '{vm_name}'.",
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': f"Failed to delete snapshot: {str(e)}",
+        }, status=500)
+
+@require_POST
+def rollback_snapshot(request):
+    import json
+    data = json.loads(request.body)
+    vm_name = data.get('vm_name')
+    snapshot_name = data.get('snapshot_name')
+
+    try:
+        # Call the Proxmox function to create the snapshot
+        rollback_proxmox_snapshot(vm_name, snapshot_name)
+        return JsonResponse({
+            'success': True,
+            'message': f"VM '{vm_name}' rolled back to snapshot '{snapshot_name}' successfully.",
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': f"Failed to rollback to snapshot: {str(e)}",
         }, status=500)

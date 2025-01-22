@@ -9,8 +9,6 @@
 
 {% block content %}
 <div class="content">
-    <h1>Approved Snapshot Requests</h1>
-
     <table class="requests-table">
         <thead>
             <tr>
@@ -24,11 +22,11 @@
             </tr>
         </thead>
         <tbody>
-            {% for request in approved_requests %}
+            {% for snapshot_request in approved_requests %}
             <tr>
                 <td>
                     {% for vm in vms %}
-                        {% if vm.name == request.vm_name %}
+                        {% if vm.name == snapshot_request.vm_name %}
                             {% if vm.status == 'running' %}
                                 <i class="fas fa-desktop" style="color: green;" title="Running"></i>
                             {% elif vm.status == 'stopped' %}
@@ -40,40 +38,48 @@
                         {% endif %}
                     {% endfor %}
                 </td>
-                <td>{{ request.snapshot_name }}</td>
-                <td>{{ request.requester.username }}</td>
+                <td>{{ snapshot_request.snapshot_name }}</td>
+                <td>{{ snapshot_request.requester.username }}</td>
                 <td>
-                    {% if request.schedule_type == 'selected_time' %}
-                        {{ request.scheduled_time|date:"d.m.Y H:i" }}
+                    {% if snapshot_request.schedule_type == 'selected_time' %}
+                        {{ snapshot_request.scheduled_time|date:"d.m.Y H:i" }}
                     {% else %}
                         On Demand
                     {% endif %}
                 </td>
-                <td>{% if request.manual_mode %}Yes{% else %}No{% endif %}</td>
-                <td>{{ request.created_at|date:"d.m.Y H:i" }}</td>
+                <td>{% if snapshot_request.manual_mode %}Yes{% else %}No{% endif %}</td>
+                <td>{{ snapshot_request.created_at|date:"d.m.Y H:i" }}</td>
                 <td>
-                    {% if request.manual_mode %}
-                        <button onclick="createSnapshot('{{ request.vm_name }}', '{{ request.snapshot_name }}', '{{ request.reasoning }}')" class="action-btn approve">
-                            Create Snapshot
-                        </button>
+                    {% if snapshot_request.manual_mode and snapshot_request.requester == request.user %}
+                    <button onclick="completeRequest('{{ snapshot_request.id }}')" class="action-btn approve">Mark as Completed</button>
                     {% else %}
-                        <span>No action required</span>
+                        <span>No available actions</span>
                     {% endif %}
                 </td>
             </tr>
             {% for vm in vms %}
-                {% if vm.name == request.vm_name and vm.snapshots %}
+                {% if vm.name == snapshot_request.vm_name and vm.snapshots %}
                     <tr>
                         <td colspan="7">
                             <ul>
                                 {% for snapshot in vm.snapshots %}
                                     {% if snapshot.name == "current" %}
-                                        <li>No current snapshots</li>
-                                    {% else %}
+                                    {% elif snapshot_request.manual_mode and snapshot_request.requester == request.user and snapshot_request.name != snapshot.name %}
                                         <li>
                                             <strong>Name:</strong> {{ snapshot.name }},
                                             <strong>Description:</strong> {{ snapshot.description }},
                                             <strong>Time:</strong> {{ snapshot.snaptime|date:"d.m.Y H:i" }}
+                                            {% if snapshot_request.requester == request.user and snapshot_request.name != snapshot.name %}
+                                            <button onclick="createSnapshot('{{ snapshot_request.vm_name }}', '{{ snapshot_request.snapshot_name }}', '{{ snapshot_request.reasoning }}')" class="action-btn approve">
+                                                Recreate snapshot
+                                            </button>
+                                            <button onclick="rollbackSnapshot('{{ snapshot_request.vm_name }}', '{{ snapshot_request.snapshot_name }}')" class="action-btn reject">
+                                                Rollback snapshot
+                                            </button>
+                                            <button onclick="deleteSnapshot('{{ snapshot_request.vm_name }}', '{{ snapshot_request.snapshot_name }}')" class="action-btn reject">
+                                                Delete snapshot
+                                            </button>
+                                            {% endif %}
                                         </li>
                                     {% endif %}
                                 {% endfor %}
@@ -121,6 +127,78 @@
             showNotification('Failed to create snapshot: ' + error.message, true);
         });
     }
+
+    function rollbackSnapshot(vmName, snapshotName) {
+        fetch(`/rollback-snapshot/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                vm_name: vmName,
+                snapshot_name: snapshotName,
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification(data.message, false);
+            } else {
+                showNotification(data.message, true);
+            }
+        })
+        .catch(error => {
+            showNotification('Failed to rollback to snapshot: ' + error.message, true);
+        });
+    }
+
+    function deleteSnapshot(vmName, snapshotName) {
+        fetch(`/delete-snapshot/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                vm_name: vmName,
+                snapshot_name: snapshotName,
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification(data.message, false);
+            } else {
+                showNotification(data.message, true);
+            }
+        })
+        .catch(error => {
+            showNotification('Failed to create snapshot: ' + error.message, true);
+        });
+    }
+
+    function completeRequest(requestId) {
+    fetch(`/complete-request/${requestId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',  // Ensure CSRF token is included
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            showNotification(data.message, false);
+            location.reload();  // Reload the page to reflect the changes
+        } else {
+            showNotification(data.error || 'An error occurred', true);
+        }
+    })
+    .catch(error => {
+        showNotification('Failed to complete request: ' + error.message, true);
+    });
+}
 
     function showNotification(message, isError) {
         const notification = document.getElementById('notification');
